@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/04 16:12:57 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/05 15:14:07 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/07 21:20:39 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include "libft/libft.h"
 # include <stdio.h>
+# include <sys/wait.h>
 //# include <unistd.h>
 //# include <stdlib.h>
 //# include <fcntl.h>
