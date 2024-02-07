@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/28 20:26:11 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/05 15:30:07 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/06 13:09:56 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,11 @@ int	check_args(t_pipex *pipex, int argc, char **argv)
 	(void)pipex;
 	(void)argc;
 	(void)argv;
+
+
+	if (!ft_strncmp(argv[1], "here_doc", 8))
+		
+
 	return (0);
 }
 
@@ -40,7 +45,7 @@ int	parse_cmds(t_pipex *pipex, int argc, char **argv, char **envp)
 	int		i;
 
 	i = 2;
-	if (ft_strncmp(argv[1], "here_doc", 8))
+	if (!ft_strncmp(argv[1], "here_doc", 8))
 		i++;
 	cmds = ft_calloc(argc - 3, sizeof(char *));
 	while (i < argc - 1)
@@ -62,7 +67,7 @@ void	parse_args(t_pipex *pipex, int argc, char **argv)
 	int		i;
 
 	i = 2;
-	if (ft_strncmp(argv[1], "here_doc", 8))
+	if (!ft_strncmp(argv[1], "here_doc", 8))
 		i++;
 	args = ft_calloc(argc - 3, sizeof(char *));
 	while (i < argc - 1)
