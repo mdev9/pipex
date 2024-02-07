@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/28 20:26:11 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/06 13:09:56 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/07 17:58:14 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,21 +18,27 @@ int	init_pipex(t_pipex **pipex)
 	if (!*pipex)
 		return (1);
 	// init struct;
+	*pipex->in_fd = 0;
+	*pipex->out_fd = 1;
+	if (!ft_strncmp(argv[1], "here_doc", 8)
+		*pipex->here_doc = 1;
+
 	return (0);
 }
 
 int	check_args(t_pipex *pipex, int argc, char **argv)
 {
 	//open all needed files
+	if (pipex->here_doc)
+	{
 	//handle here_doc (use custom gnl)
-	(void)pipex;
-	(void)argc;
-	(void)argv;
 
-
-	if (!ft_strncmp(argv[1], "here_doc", 8))
-		
-
+	}
+	else
+		in_fd = open(argv[1]);
+	out_fd = open(argv[argc - 1]);
+	if (in_fd == -1 || out_fd == -1)
+		return (1);
 	return (0);
 }
 
@@ -41,8 +47,15 @@ int	parse_cmds(t_pipex *pipex, int argc, char **argv, char **envp)
 	// create command arrray: ["/bin/cat", "/usr/bin/head", "/usr/bin/wc"]
 	// null terminate the arrays
 	// store result in pipex struct;
+	char	**path_from_envp;
+	char	**paths;
 	char	**cmds;
 	int		i;
+
+
+	//path_from_envp = ft_substr(envp, );
+	paths = ft_split(path_from_envp, ":");
+
 
 	i = 2;
 	if (!ft_strncmp(argv[1], "here_doc", 8))
@@ -52,6 +65,7 @@ int	parse_cmds(t_pipex *pipex, int argc, char **argv, char **envp)
 	{
 		cmds[i] = ft_split(argv[i], ' ')[0];
 		(void)envp;
+
 		i++;
 	}
 	pipex->cmd_paths = cmds;
@@ -78,10 +92,9 @@ void	parse_args(t_pipex *pipex, int argc, char **argv)
 	pipex->cmd_args = args;
 }
 
-/*
-int	exec(void)
+
+int	exec(t_pipex *pipex, int cmd_i, char **envp)
 {
-	int		fd[2];
 	pid_t	pid;
 
 	if (pipe(fd) == -1)
@@ -97,18 +110,24 @@ int	exec(void)
 	}
 	if (pid == 0)
 	{
-		dup2();
-		execve();
+		close(fd[in_fd]);
+		dup2(fd[out_fd], out_fd);
+		close(fd[out_fd]);
+		execve(pipex->cmd_paths[cmd_i], pipex->cmd_args[cmd_i], envp);
+		perror("execve");
+		exit(EXIT_FAILURE);
 	}
 	else
 	{
-		dup2();
+		close(fd[out_fd]);
+		dup2(fd[in_fd], in_fd);
+		close(fd[in_fd]);
 		waitpid();
 	}
 }
 
-int	ft_error(void)
-*/
+//int	ft_error(void)
+
 
 int ft_exit(t_pipex *pipex, int error_code)
 {
@@ -116,7 +135,7 @@ int ft_exit(t_pipex *pipex, int error_code)
 	(void)error_code;
 	// called when done done executing or if a malloc failed
 	// clean struct:
-	// - close all FDs
+	// - close all FDs (in_fd and out_fd)
 	// - free all allocated memory
 	// - potentially remove the temporary here_doc file using unlink
 	
@@ -134,7 +153,11 @@ int	main(int argc, char **argv, char **envp)
 	if (parse_cmds(pipex, argc, argv, envp))
 		return (ft_exit(pipex, 1));
 	parse_args(pipex, argc, argv);
-	//while (cmds)
-	//	exec();
+	int i = 0;
+	while (i < pipex->cmd_count)
+	{
+		exec(pipex, i, envp);
+		i++;
+	}
 	return (ft_exit(pipex, 0));
 }
