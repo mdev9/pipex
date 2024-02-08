@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/28 20:26:11 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/08 17:09:32 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/08 19:29:18 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,16 +48,15 @@ int ft_exit(t_pipex *pipex, int error_code)
 	return (0);
 }
 
-int	init_pipex(t_pipex **pipex, char **argv)
+int	init_pipex(t_pipex **pipex, int argc, char **argv)
 {
 	*pipex = ft_calloc(1, sizeof(t_pipex));
 	if (!*pipex)
 		return (1);
 	(*pipex)->in_fd = 0;
 	(*pipex)->out_fd = 1;
-	if (!ft_strncmp(argv[1], "here_doc", 8))
+	if (argc > 1 && !ft_strncmp(argv[1], "here_doc", 8))
 		(*pipex)->here_doc = 1;
-
 	return (0);
 }
 
@@ -72,7 +71,7 @@ int	check_args(t_pipex *pipex, int argc, char **argv)
 	else
 		pipex->in_fd = open(argv[1], O_RDONLY);
 	// if not here_doc -> O_TRUNC, else -> O_APPEND
-	pipex->out_fd = open(argv[argc - 1], O_CREAT | O_RDWR | O_APPEND, 0644);
+	pipex->out_fd = open(argv[argc - 1], O_CREAT | O_RDWR | O_TRUNC, 0644);
 	if (pipex->in_fd == -1 || pipex->out_fd == -1)
 		return (1);
 	return (0);
@@ -129,7 +128,6 @@ int	parse_cmds(t_pipex *pipex, int argc, char **argv, char **envp)
 		}
 		if (!exists)
 			ft_exit(pipex, 1);
-			//error no access found
 		i++;
 		pipex->cmd_count++;
 		k++;
@@ -159,15 +157,17 @@ void	parse_args(t_pipex *pipex, int argc, char **argv)
 	pipex->cmd_args = args;
 }
 
-int	exec(t_pipex *pipex, int cmd_i, char **envp)
+int	exec(t_pipex *pipex, int cmd_i, char **envp, int **pids, int **fds)
 {
 	pid_t	pid;
-	int fd[2];
 
-	if (pipe(fd) == -1)
+	if (cmd_i != pipex->cmd_count)
 	{
-		perror("pipe");
-		exit(EXIT_FAILURE);
+		if (pipe(fds[cmd_i]) == -1)
+		{
+			perror("pipe");
+			exit(EXIT_FAILURE);
+		}
 	}
 	pid = fork();
 	if (pid == -1)
@@ -177,46 +177,53 @@ int	exec(t_pipex *pipex, int cmd_i, char **envp)
 	}
 	if (pid == 0)
 	{
-		if (dup2(fd[1], 0) < 0)
-			ft_exit(pipex, 1);
-		// if first command, redirect input from intput file
 		if (cmd_i == 0)
 		{
 			if (dup2(pipex->in_fd, 0) < 0)
 				ft_exit(pipex, 1);
-			ft_printf(2, "if %d: %d\n", pid, cmd_i);
 		}
-		// if last command, redirect output to output file
-		else if (cmd_i == pipex->cmd_count)
+		else
+		{
+			if (dup2(fds[cmd_i - 1][0], 0) < 0)
+				ft_exit(pipex, 1);
+		}
+		if (cmd_i == pipex->cmd_count)
 		{
 			if (dup2(pipex->out_fd, 1) < 0)
 				ft_exit(pipex, 1);
-			ft_printf(2, "else if %d: %d\n", pid, cmd_i);
 		}
-		ft_printf(2, "pid: %d\n", pid);
+		else
+		{
+			if (dup2(fds[cmd_i][1], 1) < 0)
+				ft_exit(pipex, 1);
+			close(fds[cmd_i][1]);
+		}
+		if (cmd_i != 0)
+		{
+			close(fds[cmd_i - 1][0]);
+			close(fds[cmd_i - 1][1]);
+		}
+		if (cmd_i == 0)
+			close(pipex->in_fd);
+		if (cmd_i == pipex->cmd_count)
+			close(pipex->out_fd);
 		execve(pipex->cmd_paths[cmd_i], pipex->cmd_args[cmd_i], envp);
 		perror("execve");
 		exit(EXIT_FAILURE);
 	}
 	else
 	{
-		if (dup2(fd[0], 0) < 0)
-			ft_exit(pipex, 1);
+		(*pids)[cmd_i] = pid;
 		ft_printf(2, "pid: %d\n", pid);
-		// if last command, redirect output to output file
+		if (cmd_i != 0)
+		{
+			close(fds[cmd_i - 1][0]);
+			close(fds[cmd_i - 1][1]);
+		}
+		if (cmd_i == 0)
+			close(pipex->in_fd);
 		if (cmd_i == pipex->cmd_count)
-		{
-			if (dup2(pipex->out_fd, 1) < 0)
-				ft_exit(pipex, 1);
-			close(fd[1]);
-		}
-		else
-		{
-			if (dup2(fd[1], 1) < 0)
-				ft_exit(pipex, 1);
-		}
-		close(fd[0]);
-		waitpid(pid, 0, 0);
+			close(pipex->out_fd);
 	}
 	return (0);
 }
@@ -225,19 +232,38 @@ int	main(int argc, char **argv, char **envp)
 {
 	t_pipex	*pipex;
 
-	if (init_pipex(&pipex, argv))
+	if (init_pipex(&pipex, argc, argv))
 		return (ft_exit(pipex, 1));
 	if (check_args(pipex, argc, argv))
 		return (ft_exit(pipex, 1));
 	if (parse_cmds(pipex, argc, argv, envp))
 		return (ft_exit(pipex, 1));
 	parse_args(pipex, argc, argv);
+
 	int i = 0;
-	while (i < pipex->cmd_count)
+	while (i <= pipex->cmd_count)
+		i++;
+	int	*pids;
+	int	**fds;
+	pids = calloc(i + 1, sizeof(int));
+	fds = calloc(i, sizeof(int));
+	i = 0;
+	while (i <= pipex->cmd_count)
 	{
-		exec(pipex, i, envp);
+		if (i < pipex->cmd_count)
+			fds[i] = calloc(2, sizeof(int));
+		exec(pipex, i, envp, &pids, fds);
+		ft_printf(2, "iteration %d done!\n", i);
 		i++;
 	}
-	//waitpid(pid, 0, 0);
+	i = 0;
+	while (i <= pipex->cmd_count)
+	{
+		ft_printf(2, "waiting for: %d\n", pids[i]);
+		if (waitpid(pids[i], 0, 0) < 0)
+			ft_exit(pipex, 1);
+		ft_printf(2, "%d done!\n", pids[i]);
+		i++;
+	}
 	return (ft_exit(pipex, 0));
 }

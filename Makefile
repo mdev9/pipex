@@ -1,6 +1,6 @@
 NAME = pipex
 
-CC = gcc
+CC = cc
 
 SRCS =	pipex.c\
 		pipex_utils.c
