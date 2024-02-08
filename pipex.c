@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/28 20:26:11 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/08 14:46:20 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/08 17:09:32 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,14 +177,13 @@ int	exec(t_pipex *pipex, int cmd_i, char **envp)
 	}
 	if (pid == 0)
 	{
-		//close(fd[0]);
-
+		if (dup2(fd[1], 0) < 0)
+			ft_exit(pipex, 1);
 		// if first command, redirect input from intput file
 		if (cmd_i == 0)
 		{
 			if (dup2(pipex->in_fd, 0) < 0)
 				ft_exit(pipex, 1);
-				//error
 			ft_printf(2, "if %d: %d\n", pid, cmd_i);
 		}
 		// if last command, redirect output to output file
@@ -192,55 +191,32 @@ int	exec(t_pipex *pipex, int cmd_i, char **envp)
 		{
 			if (dup2(pipex->out_fd, 1) < 0)
 				ft_exit(pipex, 1);
-				//error
 			ft_printf(2, "else if %d: %d\n", pid, cmd_i);
 		}
-		else
-		{
-			if (dup2(fd[1], 0) < 0)
-				ft_exit(pipex, 1);
-//			if (dup2(fd[0], 1) < 0)
-//				ft_exit(pipex, 1);
-				//Error
-			ft_printf(2, "else %d: %d\n", pid, cmd_i);
-		}
-		//close(fd[0]);
-		//close(pipex->out_fd);
-		//close(pipex->in_fd);
 		ft_printf(2, "pid: %d\n", pid);
-		//close(fd[1]);
 		execve(pipex->cmd_paths[cmd_i], pipex->cmd_args[cmd_i], envp);
 		perror("execve");
 		exit(EXIT_FAILURE);
 	}
 	else
 	{
-		ft_printf(2, "%d: %d\n", pid, cmd_i);
-		//close(fd[1]);
-		if (dup2(fd[0], 1) < 0)
+		if (dup2(fd[0], 0) < 0)
 			ft_exit(pipex, 1);
-		//close(fd[0]);
-	//	close(STDOUT_FILENO);
-		//close(STDIN_FILENO);
-		ft_printf(2, "waitpid: %d\n", pid);
-		waitpid(pid, 0, 0);
-
+		ft_printf(2, "pid: %d\n", pid);
 		// if last command, redirect output to output file
-		/*
 		if (cmd_i == pipex->cmd_count)
 		{
 			if (dup2(pipex->out_fd, 1) < 0)
 				ft_exit(pipex, 1);
-				//error
+			close(fd[1]);
 		}
-		if (dup2(fd[0], 0) < 0)
-			ft_exit(pipex, 1);
-			//error
-		close(fd[1]);
-		close(pipex->out_fd);
-		*/
-		//execve(pipex->cmd_paths[cmd_i], pipex->cmd_args[cmd_i], envp);
-
+		else
+		{
+			if (dup2(fd[1], 1) < 0)
+				ft_exit(pipex, 1);
+		}
+		close(fd[0]);
+		waitpid(pid, 0, 0);
 	}
 	return (0);
 }
