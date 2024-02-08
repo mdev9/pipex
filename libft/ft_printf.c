@@ -6,39 +6,39 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/05 20:51:52 by marde-vr          #+#    #+#             */
-/*   Updated: 2023/12/12 13:39:05 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/08 12:41:56 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "libft.h"
 
-int	ft_putchar(char c)
+int	putchar_fd(int fd, char c)
 {
-	write(1, &c, 1);
+	write(fd, &c, 1);
 	return (1);
 }
 
-int	ft_print_arg(va_list args_lst, char c)
+int	ft_print_arg(int fd, va_list args_lst, char c)
 {
 	int	n;
 
 	n = 0;
 	if (c == 'c')
-		n += ft_putchar(va_arg(args_lst, int));
+		n += putchar_fd(fd, va_arg(args_lst, int));
 	else if (c == 's')
-		n += ft_putstr(va_arg(args_lst, char *));
+		n += putstr_fd(fd, va_arg(args_lst, char *));
 	else if (c == 'p')
-		n += ft_putptr(va_arg(args_lst, long unsigned int));
+		n += putptr_fd(fd, va_arg(args_lst, long unsigned int));
 	else if (c == 'd' || c == 'i')
-		n += ft_putnbr(va_arg(args_lst, int));
+		n += putnbr_fd(fd, va_arg(args_lst, int));
 	else if (c == 'u')
-		n += ft_putnbr(va_arg(args_lst, unsigned int));
+		n += putnbr_fd(fd, va_arg(args_lst, unsigned int));
 	else if (c == 'x' || c == 'X')
-		n += ft_puthexa(va_arg(args_lst, unsigned int), c);
+		n += puthexa_fd(fd, va_arg(args_lst, unsigned int), c);
 	else if (c == '\0')
 		return (-1);
 	else
 	{
-		n += ft_putchar('%');
+		n += putchar_fd(fd, '%');
 	}
 	return (n);
 }
@@ -51,7 +51,7 @@ int	ft_conversion_is_handled(char c)
 	return (0);
 }
 
-int	ft_printf(const char *s, ...)
+int	ft_printf(int fd, const char *s, ...)
 {
 	int		n;
 	int		i;
@@ -64,7 +64,7 @@ int	ft_printf(const char *s, ...)
 	{
 		if (s[i] == '%' && ft_conversion_is_handled(s[i + 1]))
 		{
-			n += ft_print_arg(args_lst, s[i + 1]);
+			n += ft_print_arg(fd, args_lst, s[i + 1]);
 			if (s[i + 1] != '\0')
 				i += 2;
 			else
@@ -72,7 +72,7 @@ int	ft_printf(const char *s, ...)
 		}
 		else
 		{
-			n += ft_putchar(s[i]);
+			n += putchar_fd(fd, s[i]);
 			i++;
 		}
 	}

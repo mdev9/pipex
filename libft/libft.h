@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 21:17:32 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/01/29 10:30:11 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/08 12:41:40 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,15 +71,15 @@ t_list				*ft_lstmap(t_list *lst, void *(*f)(void *),
 
 //PRINTF
 
-int					ft_putchar(const char c);
-int					ft_putstr(const char *s);
-int					ft_putptr(long unsigned int ptr);
-int					ft_putnbr(long nbr);
-int					ft_puthexa(unsigned int nbr, char c);
-int					ft_puthexa_ptr(long unsigned int ptr);
+int					putchar_fd(int fd, const char c);
+int					putstr_fd(int fd, const char *s);
+int					putptr_fd(int fd, long unsigned int ptr);
+int					putnbr_fd(int fd, long nbr);
+int					puthexa_fd(int fd, unsigned int nbr, char c);
+int					puthexa_ptr_fd(int fd, long unsigned int ptr);
 
-int					ft_printf(const char *s, ...);
-int					ft_print_arg(va_list args_lst, char c);
+int					ft_printf(int fd, const char *s, ...);
+int					ft_print_arg(int fd, va_list args_lst, char c);
 
 //GET_NEXT_LINE
 

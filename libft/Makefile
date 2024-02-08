@@ -67,7 +67,7 @@ bonus: $(OBJS) $(OBJS_BONUS)
 	ar rcs ${NAME} ${OBJS} ${OBJS_BONUS}
 
 .c.o:
-	$(CC) -g $(FLAGS) -c $< -o $@ -I .
+	$(CC) $(FLAGS) -c $< -o $@ -I .
 
 so:
 	$(CC) -nostartfiles -fPIC $(FLAGS) $(SRCS)

@@ -12,13 +12,13 @@ FLAGS = -Wall -Wextra -Werror
 all: $(NAME)
 
 $(NAME): libft $(OBJS) 
-	$(CC) -g $(FLAGS) $(OBJS) -o $(NAME) -I . -L ./libft -lft
+	$(CC) -g $(FLAGS) $(OBJS) libft/libft.a -o $(NAME)
 
 libft:
 	make -C ./libft
 
 .c.o:
-	$(CC) -g $(FLAGS) -c $< -o $@ -I . -L ./libft -lft
+	$(CC) -g $(FLAGS) -c $< -o $@ 
 
 clean:
 	rm -f $(OBJS)
