@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/28 20:26:11 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/08 19:29:18 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/08 22:10:50 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,23 +14,16 @@
 #include "libft/libft.h"
 #include <unistd.h>
 
-int ft_exit(t_pipex *pipex, int error_code)
+int ft_exit(t_pipex *pipex, int error)
 {
-	// called when done done executing or if a malloc failed
-	// clean struct:
-	// - close all FDs (in_fd and out_fd)
-	// - free all allocated memory
 	// - potentially remove the temporary here_doc file using unlink
 	
-	if (error_code)
-		perror("Error");
+	int i;
 	if (pipex)
 	{
 		if (pipex->cmd_args)
-			free(pipex->cmd_paths);
-		if (pipex->cmd_args)
 		{
-			int i = 0;
+			i = 0;
 			while (i < pipex->cmd_count)
 			{
 				int j = 0;
@@ -42,10 +35,33 @@ int ft_exit(t_pipex *pipex, int error_code)
 				free(pipex->cmd_args[i]);
 				i++;
 			}
+			free(pipex->cmd_args);
+		}
+		if (pipex->cmd_paths)
+		{
+			i = 0;
+			while (i < pipex->cmd_count - 1)
+			{
+				free(pipex->cmd_paths[i]);
+				i++;
+			}
+			free(pipex->cmd_paths);
+		}
+		if (pipex->pids)
+			free(pipex->pids);
+		if (pipex->fds)
+		{
+			i = 0;
+			while (i < pipex->cmd_count - 1)
+			{
+				free(pipex->fds[i]);
+				i++;
+			}
 		}
 	}
 	free(pipex);
-	return (0);
+	exit(error);
+	return (error);
 }
 
 int	init_pipex(t_pipex **pipex, int argc, char **argv)
@@ -62,6 +78,8 @@ int	init_pipex(t_pipex **pipex, int argc, char **argv)
 
 int	check_args(t_pipex *pipex, int argc, char **argv)
 {
+	if (argc < 5)
+		ft_exit(pipex, 0);
 	//open all needed files
 	if (pipex->here_doc)
 	{
@@ -83,6 +101,7 @@ int	parse_cmds(t_pipex *pipex, int argc, char **argv, char **envp)
 	char	**paths;
 	char	**cmds;
 	char	*path;
+	char	*tmp;
 	int		exists;
 	int		i;
 	int		j;
@@ -99,7 +118,8 @@ int	parse_cmds(t_pipex *pipex, int argc, char **argv, char **envp)
 		i++;
 	k = 0;
 	cmds = ft_calloc(argc - 3, sizeof(char *));
-	cmds[argc - 1] = 0;
+	if (!cmds)
+		ft_exit(pipex, 1);
 	while (i < argc - 1)
 	{
 		cmds[k] = ft_split(argv[i], ' ')[0];
@@ -112,8 +132,9 @@ int	parse_cmds(t_pipex *pipex, int argc, char **argv, char **envp)
 			while (paths[j])
 			{
 				path = paths[j];
-				path = ft_strjoin(path, "/");
-				path = ft_strjoin(path, cmds[k]);
+				tmp = ft_strjoin(path, "/");
+				path = ft_strjoin(tmp, cmds[k]);
+				free(tmp);
 				if (access(path, X_OK) != -1)
 				{
 					exists = 1;
@@ -127,7 +148,10 @@ int	parse_cmds(t_pipex *pipex, int argc, char **argv, char **envp)
 
 		}
 		if (!exists)
+		{
+			pipex->cmd_paths = cmds;
 			ft_exit(pipex, 1);
+		}
 		i++;
 		pipex->cmd_count++;
 		k++;
@@ -147,6 +171,8 @@ void	parse_args(t_pipex *pipex, int argc, char **argv)
 	if (!ft_strncmp(argv[1], "here_doc", 8))
 		i++;
 	args = ft_calloc(argc - 3, sizeof(char *));
+	if (!args)
+		ft_exit(pipex, 1);
 	j = 0;
 	while (i < argc - 1)
 	{
@@ -157,13 +183,13 @@ void	parse_args(t_pipex *pipex, int argc, char **argv)
 	pipex->cmd_args = args;
 }
 
-int	exec(t_pipex *pipex, int cmd_i, char **envp, int **pids, int **fds)
+int	exec(t_pipex *pipex, int cmd_i, char **envp)
 {
 	pid_t	pid;
 
 	if (cmd_i != pipex->cmd_count)
 	{
-		if (pipe(fds[cmd_i]) == -1)
+		if (pipe(pipex->fds[cmd_i]) == -1)
 		{
 			perror("pipe");
 			exit(EXIT_FAILURE);
@@ -184,7 +210,7 @@ int	exec(t_pipex *pipex, int cmd_i, char **envp, int **pids, int **fds)
 		}
 		else
 		{
-			if (dup2(fds[cmd_i - 1][0], 0) < 0)
+			if (dup2(pipex->fds[cmd_i - 1][0], 0) < 0)
 				ft_exit(pipex, 1);
 		}
 		if (cmd_i == pipex->cmd_count)
@@ -194,14 +220,14 @@ int	exec(t_pipex *pipex, int cmd_i, char **envp, int **pids, int **fds)
 		}
 		else
 		{
-			if (dup2(fds[cmd_i][1], 1) < 0)
+			if (dup2(pipex->fds[cmd_i][1], 1) < 0)
 				ft_exit(pipex, 1);
-			close(fds[cmd_i][1]);
+			close(pipex->fds[cmd_i][1]);
 		}
 		if (cmd_i != 0)
 		{
-			close(fds[cmd_i - 1][0]);
-			close(fds[cmd_i - 1][1]);
+			close(pipex->fds[cmd_i - 1][0]);
+			close(pipex->fds[cmd_i - 1][1]);
 		}
 		if (cmd_i == 0)
 			close(pipex->in_fd);
@@ -213,12 +239,12 @@ int	exec(t_pipex *pipex, int cmd_i, char **envp, int **pids, int **fds)
 	}
 	else
 	{
-		(*pids)[cmd_i] = pid;
+		pipex->pids[cmd_i] = pid;
 		ft_printf(2, "pid: %d\n", pid);
 		if (cmd_i != 0)
 		{
-			close(fds[cmd_i - 1][0]);
-			close(fds[cmd_i - 1][1]);
+			close(pipex->fds[cmd_i - 1][0]);
+			close(pipex->fds[cmd_i - 1][1]);
 		}
 		if (cmd_i == 0)
 			close(pipex->in_fd);
@@ -238,6 +264,7 @@ int	main(int argc, char **argv, char **envp)
 		return (ft_exit(pipex, 1));
 	if (parse_cmds(pipex, argc, argv, envp))
 		return (ft_exit(pipex, 1));
+	//ft_exit(pipex, 0);
 	parse_args(pipex, argc, argv);
 
 	int i = 0;
@@ -246,23 +273,27 @@ int	main(int argc, char **argv, char **envp)
 	int	*pids;
 	int	**fds;
 	pids = calloc(i + 1, sizeof(int));
-	fds = calloc(i, sizeof(int));
+	fds = calloc(i, sizeof(int *));
+	if (! pids || !fds)
+		ft_exit(pipex, 1);
+	pipex->pids = pids;
+	pipex->fds = fds;
 	i = 0;
 	while (i <= pipex->cmd_count)
 	{
 		if (i < pipex->cmd_count)
-			fds[i] = calloc(2, sizeof(int));
-		exec(pipex, i, envp, &pids, fds);
-		ft_printf(2, "iteration %d done!\n", i);
+			pipex->fds[i] = calloc(2, sizeof(int));
+		exec(pipex, i, envp);
+		//ft_printf(2, "iteration %d done!\n", i);
 		i++;
 	}
 	i = 0;
 	while (i <= pipex->cmd_count)
 	{
-		ft_printf(2, "waiting for: %d\n", pids[i]);
-		if (waitpid(pids[i], 0, 0) < 0)
+		//ft_printf(2, "waiting for: %d\n", pids[i]);
+		if (waitpid(pipex->pids[i], 0, 0) < 0)
 			ft_exit(pipex, 1);
-		ft_printf(2, "%d done!\n", pids[i]);
+		//ft_printf(2, "%d done!\n", pids[i]);
 		i++;
 	}
 	return (ft_exit(pipex, 0));

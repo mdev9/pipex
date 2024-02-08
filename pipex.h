@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/04 16:12:57 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/07 21:20:39 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/08 21:23:01 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ typedef struct s_pipex
 	int		here_doc;
 	char	**cmd_paths;
 	char	***cmd_args;
+	int		*pids;
+	int		**fds;
 	int		cmd_count;
 }				t_pipex;
 
