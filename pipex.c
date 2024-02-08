@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/28 20:26:11 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/07 21:56:44 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/08 11:04:20 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,9 +77,6 @@ int	check_args(t_pipex *pipex, int argc, char **argv)
 
 int	parse_cmds(t_pipex *pipex, int argc, char **argv, char **envp)
 {
-	// create command arrray: ["/bin/cat", "/usr/bin/head", "/usr/bin/wc"]
-	// null terminate the arrays
-	// store result in pipex struct;
 	char	*path_from_envp;
 	char	**paths;
 	char	**cmds;
@@ -141,9 +138,6 @@ int	parse_cmds(t_pipex *pipex, int argc, char **argv, char **envp)
 
 void	parse_args(t_pipex *pipex, int argc, char **argv)
 {
-	// ft_split args: [["cat"], ["head", "-n", "5"], ["wc", "-l"]]
-	// null terminate the arrays
-	// store result in pipex struct;
 	char	***args;
 	int		i;
 	int		j;
@@ -180,12 +174,17 @@ int	exec(t_pipex *pipex, int cmd_i, char **envp)
 	}
 	if (pid == 0)
 	{
-		close(fd[0]);
+		//close(fd[0]);
 		
-		dup2(fd[1], 0);
-		fd[0] = pipex->in_fd;
-
-		close(fd[1]);
+		// todo: if first command, redirect input from intput file
+		if (dup2(pipex->in_fd, 0) < 0)
+			ft_exit(pipex, 1);
+			//error
+		if (dup2(pipex->out_fd, 1) < 0)
+			ft_exit(pipex, 1);
+			//error
+		close(fd[0]);
+		close(pipex->in_fd);
 		execve(pipex->cmd_paths[cmd_i], pipex->cmd_args[cmd_i], envp);
 		perror("execve");
 		exit(EXIT_FAILURE);
@@ -194,11 +193,18 @@ int	exec(t_pipex *pipex, int cmd_i, char **envp)
 	{
 		close(fd[1]);
 		
-		dup2(fd[0], 0);
-		fd[1] = pipex->out_fd;
-
-		close(fd[0]);
+		if (dup2(pipex->out_fd, 1) < 0)
+			ft_exit(pipex, 1);
+			//error
+		// todo: if last command, redirect output to output file
+		if (dup2(fd[0], 0) < 0)
+			ft_exit(pipex, 1);
+			//error
+		close(fd[1]);
+		close(pipex->out_fd);
 		waitpid(pid, 0, 0);
+		//execve(pipex->cmd_paths[cmd_i], pipex->cmd_args[cmd_i], envp);
+
 	}
 	return (0);
 }
@@ -221,6 +227,7 @@ int	main(int argc, char **argv, char **envp)
 	while (i < pipex->cmd_count)
 	{
 		exec(pipex, i, envp);
+		ft_printf("%d", i);
 		i++;
 	}
 	return (ft_exit(pipex, 0));
