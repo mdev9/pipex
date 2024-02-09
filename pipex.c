@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/28 20:26:11 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/08 22:10:50 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/09 13:57:42 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,10 +21,11 @@ int ft_exit(t_pipex *pipex, int error)
 	int i;
 	if (pipex)
 	{
+
 		if (pipex->cmd_args)
 		{
 			i = 0;
-			while (i < pipex->cmd_count)
+			while (i <= pipex->cmd_count)
 			{
 				int j = 0;
 				while (pipex->cmd_args[i][j])
@@ -40,7 +41,7 @@ int ft_exit(t_pipex *pipex, int error)
 		if (pipex->cmd_paths)
 		{
 			i = 0;
-			while (i < pipex->cmd_count - 1)
+			while (i <= pipex->cmd_count)
 			{
 				free(pipex->cmd_paths[i]);
 				i++;
@@ -52,11 +53,22 @@ int ft_exit(t_pipex *pipex, int error)
 		if (pipex->fds)
 		{
 			i = 0;
-			while (i < pipex->cmd_count - 1)
+			while (i < pipex->cmd_count)
 			{
 				free(pipex->fds[i]);
 				i++;
 			}
+			free(pipex->fds);
+		}
+		if (pipex->paths)
+		{
+			i = 0;
+			while (pipex->paths[i])
+			{
+				free(pipex->paths[i]);
+				i++;
+			}
+			free(pipex->paths);
 		}
 	}
 	free(pipex);
@@ -95,6 +107,14 @@ int	check_args(t_pipex *pipex, int argc, char **argv)
 	return (0);
 }
 
+int	first_word_len(char *str)
+{
+	int i = 0;
+	while (str[i] && !(str[i] == ' ' || str[i] == '\0'))
+		i++;
+	return (i);
+}
+
 int	parse_cmds(t_pipex *pipex, int argc, char **argv, char **envp)
 {
 	char	*path_from_envp;
@@ -108,21 +128,24 @@ int	parse_cmds(t_pipex *pipex, int argc, char **argv, char **envp)
 	int		k;
 
 	i = 0;
-	while (ft_strncmp(*(envp + i), "PATH", 4))
+	while (ft_strncmp(*(envp + i), "PATH=", 5))
 		i++;
 	path_from_envp = *(envp + i);
 	paths = ft_split(path_from_envp, ':');
-
+	pipex->paths = paths;
 	i = 2;
 	if (!ft_strncmp(argv[1], "here_doc", 8))
 		i++;
 	k = 0;
 	cmds = ft_calloc(argc - 3, sizeof(char *));
 	if (!cmds)
+	{
+		pipex->cmd_paths = cmds;
 		ft_exit(pipex, 1);
+	}
 	while (i < argc - 1)
 	{
-		cmds[k] = ft_split(argv[i], ' ')[0];
+		cmds[k] = ft_substr(argv[i], 0, first_word_len(argv[i]));
 		exists = 0;
 		if (access(cmds[k], X_OK) != -1)
 			exists = 1;
@@ -149,8 +172,8 @@ int	parse_cmds(t_pipex *pipex, int argc, char **argv, char **envp)
 		}
 		if (!exists)
 		{
-			pipex->cmd_paths = cmds;
-			ft_exit(pipex, 1);
+			free(cmds[k]);
+			cmds[k] = 0;
 		}
 		i++;
 		pipex->cmd_count++;
@@ -264,7 +287,6 @@ int	main(int argc, char **argv, char **envp)
 		return (ft_exit(pipex, 1));
 	if (parse_cmds(pipex, argc, argv, envp))
 		return (ft_exit(pipex, 1));
-	//ft_exit(pipex, 0);
 	parse_args(pipex, argc, argv);
 
 	int i = 0;
@@ -274,27 +296,26 @@ int	main(int argc, char **argv, char **envp)
 	int	**fds;
 	pids = calloc(i + 1, sizeof(int));
 	fds = calloc(i, sizeof(int *));
-	if (! pids || !fds)
-		ft_exit(pipex, 1);
 	pipex->pids = pids;
 	pipex->fds = fds;
+	if (! pids || !fds)
+		ft_exit(pipex, 1);
 	i = 0;
 	while (i <= pipex->cmd_count)
 	{
 		if (i < pipex->cmd_count)
 			pipex->fds[i] = calloc(2, sizeof(int));
-		exec(pipex, i, envp);
-		//ft_printf(2, "iteration %d done!\n", i);
+		if (pipex->cmd_paths)
+			exec(pipex, i, envp);
 		i++;
 	}
 	i = 0;
-	while (i <= pipex->cmd_count)
-	{
-		//ft_printf(2, "waiting for: %d\n", pids[i]);
-		if (waitpid(pipex->pids[i], 0, 0) < 0)
-			ft_exit(pipex, 1);
-		//ft_printf(2, "%d done!\n", pids[i]);
-		i++;
-	}
+	waitpid(pipex->pids[pipex->cmd_count], 0, 0);
+	//while (i <= pipex->cmd_count)
+	//{
+	//	if (waitpid(pipex->pids[i], 0, 0) < 0)
+	//		ft_exit(pipex, 1);
+	//	i++;
+	//}
 	return (ft_exit(pipex, 0));
 }
