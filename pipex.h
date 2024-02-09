@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/04 16:12:57 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/09 13:07:14 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/09 14:19:52 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,5 +32,12 @@ typedef struct s_pipex
 	int		cmd_count;
 	char	**paths;
 }				t_pipex;
+
+int		ft_exit(t_pipex *pipex, int error);
+int		first_word_len(char *str);
+int		init_pipex(t_pipex **pipex, int argc, char **argv);
+int		check_args(t_pipex *pipex, int argc, char **argv);
+void	parse_args(t_pipex *pipex, int argc, char **argv);
+int		parse_cmds(t_pipex *pipex, int argc, char **argv, char **envp);
 
 #endif
