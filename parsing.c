@@ -6,97 +6,128 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 14:10:06 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/09 14:36:00 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/09 19:47:33 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
+#include <unistd.h>
+
+char	*get_tmp_file_name(int argc, char **argv)
+{
+	int		i;
+	char	*tmp_file_name;
+	char	*res;
+	char	*i_char;
+
+	i = 0;
+	tmp_file_name = "tmp";
+	i_char = ft_itoa(i);
+	res = ft_strjoin(tmp_file_name, i_char);
+	free(i_char);
+	// while res file exists --> increase
+	while (!ft_strncmp(res, argv[argc - 1], ft_strlen(res)))
+	{
+		free(res);
+		i_char = ft_itoa(i);
+		res = ft_strjoin(ft_strdup(tmp_file_name), i_char);
+		free(i_char);
+		i++;
+	}
+	return (res);
+}
 
 int	check_args(t_pipex *pipex, int argc, char **argv)
 {
-	if (argc < 5)
+	char	*line;
+	char	*eof;
+
+	if (argc < (5 + pipex->here_doc))
 		ft_exit(pipex, 0);
-	//open all needed files
 	if (pipex->here_doc)
 	{
-	//handle here_doc (use custom gnl)
-
+		pipex->here_doc_file = get_tmp_file_name(argc, argv);
+		ft_printf(2, "here_doc_file: %s\n", pipex->here_doc_file);
+		pipex->in_fd = open(pipex->here_doc_file, O_CREAT | O_RDWR, 0644);
+		ft_printf(2, "here_doc> ");
+		line = get_next_line(0);
+		write(pipex->in_fd, line, ft_strlen(line));
+		eof = ft_strjoin(argv[2], "\n");
+		while (ft_strncmp(line, eof, (ft_strlen(argv[2]) + 1)))
+		{
+			ft_printf(2, "here_doc> ");
+			free(line);
+			line = get_next_line(0);
+			if (ft_strncmp(line, eof, (ft_strlen(argv[2]) + 1)))
+				write(pipex->in_fd, line, ft_strlen(line));
+		}
+		free(eof);
+		free(line);
+		pipex->out_fd = open(argv[argc - 1], O_CREAT | O_RDWR | O_APPEND, 0644);
 	}
 	else
+	{
 		pipex->in_fd = open(argv[1], O_RDONLY);
-	// if not here_doc -> O_TRUNC, else -> O_APPEND
-	pipex->out_fd = open(argv[argc - 1], O_CREAT | O_RDWR | O_TRUNC, 0644);
+		pipex->out_fd = open(argv[argc - 1], O_CREAT | O_RDWR | O_TRUNC, 0644);
+	}
 	if (pipex->in_fd == -1 || pipex->out_fd == -1)
 		return (1);
 	return (0);
 }
 
-int	parse_cmds(t_pipex *pipex, int argc, char **argv, char **envp)
+void	find_cmd_path(t_pipex *pipex, int cmd, int *exists)
 {
-	char	*path_from_envp;
-	char	**paths;
-	char	**cmds;
-	char	*path;
 	char	*tmp;
-	int		exists;
+	char	*path;
 	int		i;
-	int		j;
-	int		k;
 
 	i = 0;
-	while (ft_strncmp(*(envp + i), "PATH=", 5))
+	while (pipex->paths[i])
+	{
+		path = pipex->paths[i];
+		tmp = ft_strjoin(path, "/");
+		path = ft_strjoin(tmp, pipex->cmd_paths[cmd]);
+		free(tmp);
+		if (access(path, X_OK) != -1)
+		{
+			*exists = 1;
+			free(pipex->cmd_paths[cmd]);
+			pipex->cmd_paths[cmd] = path;
+			break ;
+		}
+		free(path);
 		i++;
-	path_from_envp = *(envp + i);
-	paths = ft_split(path_from_envp, ':');
-	pipex->paths = paths;
+	}
+}
+
+int	parse_cmds(t_pipex *pipex, int argc, char **argv)
+{
+	int	exists;
+	int	i;
+	int	j;
+
 	i = 2;
 	if (!ft_strncmp(argv[1], "here_doc", 8))
 		i++;
-	k = 0;
-	cmds = ft_calloc(argc - 3, sizeof(char *));
-	if (!cmds)
-	{
-		pipex->cmd_paths = cmds;
-		ft_exit(pipex, 1);
-	}
+	j = 0;
 	while (i < argc - 1)
 	{
-		cmds[k] = ft_substr(argv[i], 0, first_word_len(argv[i]));
+		pipex->cmd_paths[j] = ft_substr(argv[i], 0, first_word_len(argv[i]));
 		exists = 0;
-		if (access(cmds[k], X_OK) != -1)
+		if (access(pipex->cmd_paths[j], X_OK) != -1)
 			exists = 1;
 		else
-		{
-			j = 0;
-			while (paths[j])
-			{
-				path = paths[j];
-				tmp = ft_strjoin(path, "/");
-				path = ft_strjoin(tmp, cmds[k]);
-				free(tmp);
-				if (access(path, X_OK) != -1)
-				{
-					exists = 1;
-					free(cmds[k]);
-					cmds[k] = path;
-					break;
-				}
-				free(path);
-				j++;
-			}
-
-		}
+			find_cmd_path(pipex, j, &exists);
 		if (!exists)
 		{
-			free(cmds[k]);
-			cmds[k] = 0;
+			free(pipex->cmd_paths[j]);
+			pipex->cmd_paths[j] = 0;
 		}
 		i++;
-		pipex->cmd_count++;
-		k++;
+		j++;
+		//pipex->cmd_count++;
 	}
-	pipex->cmd_count--;
-	pipex->cmd_paths = cmds;
+	//pipex->cmd_count--;
 	return (0);
 }
 

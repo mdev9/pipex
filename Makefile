@@ -3,7 +3,10 @@ NAME = pipex
 CC = cc
 
 SRCS =	pipex.c\
-		pipex_utils.c
+		pipex_utils.c\
+		parsing.c\
+		pipe.c\
+		free.c
 		
 OBJS = $(SRCS:.c=.o)
 

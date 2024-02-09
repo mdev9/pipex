@@ -6,20 +6,22 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 14:00:12 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/09 14:07:43 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/09 19:28:09 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
+#include <unistd.h>
 
 void	free_cmd_args(t_pipex *pipex)
 {
-	int i;
+	int	i;
+	int	j;
 
 	i = 0;
-	while (i <= pipex->cmd_count)
+	while (i <= pipex->cmd_count + 1)
 	{
-		int j = 0;
+		j = 0;
 		while (pipex->cmd_args[i][j])
 		{
 			free(pipex->cmd_args[i][j]);
@@ -33,12 +35,12 @@ void	free_cmd_args(t_pipex *pipex)
 
 void	free_paths(t_pipex *pipex)
 {
-	int i;
+	int	i;
 
 	if (pipex->cmd_paths)
 	{
 		i = 0;
-		while (i <= pipex->cmd_count)
+		while (i <= pipex->cmd_count + 1)
 		{
 			free(pipex->cmd_paths[i]);
 			i++;
@@ -59,7 +61,7 @@ void	free_paths(t_pipex *pipex)
 
 void	free_struct(t_pipex *pipex)
 {
-	int i;
+	int	i;
 
 	free_paths(pipex);
 	if (pipex->cmd_args)
@@ -76,13 +78,15 @@ void	free_struct(t_pipex *pipex)
 		}
 		free(pipex->fds);
 	}
+	if (pipex->here_doc_file)
+	{
+		unlink(pipex->here_doc_file);
+		free(pipex->here_doc_file);
+	}
 }
 
-int ft_exit(t_pipex *pipex, int error)
+int	ft_exit(t_pipex *pipex, int error)
 {
-	// - potentially remove the temporary here_doc file using unlink
-	
-	int i;
 	if (pipex)
 	{
 		free_struct(pipex);
