@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/28 20:26:11 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/10 18:19:33 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/10 18:40:22 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,14 +56,12 @@ int	main(int argc, char **argv, char **envp)
 		exec(pipex, i, envp);
 		i++;
 	}
-	waitpid(pipex->pids[pipex->cmd_count - 1], 0, 0);
-	/*
-  i = pipex->cmd_count - 1;
-  while (i >= 0)
-  {
-          if (waitpid(pipex->pids[i], 0, 0) < 0)
-                  ft_exit(pipex, 1);
-          i--;
-  }*/
+	i = pipex->cmd_count - 1;
+	while (i >= 0)
+	{
+		if (waitpid(pipex->pids[i], 0, 0) < 0)
+			ft_exit(pipex, 1);
+		i--;
+	}
 	return (ft_exit(pipex, 0));
 }

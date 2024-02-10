@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 15:26:46 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/10 18:20:34 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/10 18:35:30 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ void	pipe_child(t_pipex *pipex, int cmd_i, char **envp)
 		close(pipex->fds[cmd_i - 1][0]);
 		close(pipex->fds[cmd_i - 1][1]);
 	}
-	if (cmd_i == 0)
+	if (cmd_i == 0 || pipex->here_doc)
 		close(pipex->in_fd);
 	close(pipex->fds[cmd_i][0]);
 	close(pipex->fds[cmd_i][1]);

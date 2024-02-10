@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 14:10:06 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/10 17:21:09 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/10 18:28:02 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ void	handle_here_doc(t_pipex *pipex, int argc, char **argv)
 	free(eof);
 	free(line);
 	pipex->out_fd = open(argv[argc - 1], O_CREAT | O_RDWR | O_APPEND, 0644);
+	close(pipex->in_fd);
 }
 
 int	check_args(t_pipex *pipex, int argc, char **argv)
