@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/28 20:26:11 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/09 18:52:28 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/10 18:19:33 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,15 +20,15 @@ int	exec(t_pipex *pipex, int cmd_i, char **envp)
 	{
 		if (pipe(pipex->fds[cmd_i]) == -1)
 		{
-			perror("pipe");
-			exit(EXIT_FAILURE);
+			perror("pipe error\n");
+			ft_exit(pipex, 1);
 		}
 	}
 	pid = fork();
 	if (pid == -1)
 	{
-		perror("fork");
-		exit(EXIT_FAILURE);
+		perror("fork error\n");
+		ft_exit(pipex, 1);
 	}
 	if (pid == 0)
 		pipe_child(pipex, cmd_i, envp);
@@ -50,22 +50,20 @@ int	main(int argc, char **argv, char **envp)
 		return (ft_exit(pipex, 1));
 	parse_args(pipex, argc, argv);
 	i = 0;
-	while (i <= pipex->cmd_count)
+	while (i < pipex->cmd_count)
 	{
-		if (i < pipex->cmd_count)
-			pipex->fds[i] = calloc(2, sizeof(int));
-		if (pipex->cmd_paths)
-			exec(pipex, i, envp);
+		pipex->fds[i] = calloc(2, sizeof(int));
+		exec(pipex, i, envp);
 		i++;
 	}
-	waitpid(pipex->pids[pipex->cmd_count], 0, 0);
+	waitpid(pipex->pids[pipex->cmd_count - 1], 0, 0);
 	/*
-	i = pipex->cmd_count - 1;
-	while (i >= 0)
-	{
-		if (waitpid(pipex->pids[i], 0, 0) < 0)
-			ft_exit(pipex, 1);
-		i--;
-	}*/
+  i = pipex->cmd_count - 1;
+  while (i >= 0)
+  {
+          if (waitpid(pipex->pids[i], 0, 0) < 0)
+                  ft_exit(pipex, 1);
+          i--;
+  }*/
 	return (ft_exit(pipex, 0));
 }

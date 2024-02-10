@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 14:00:12 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/09 19:28:09 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/10 17:41:20 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void	free_cmd_args(t_pipex *pipex)
 	int	j;
 
 	i = 0;
-	while (i <= pipex->cmd_count + 1)
+	while (i < pipex->cmd_count)
 	{
 		j = 0;
 		while (pipex->cmd_args[i][j])
@@ -40,7 +40,7 @@ void	free_paths(t_pipex *pipex)
 	if (pipex->cmd_paths)
 	{
 		i = 0;
-		while (i <= pipex->cmd_count + 1)
+		while (pipex->cmd_count && i < pipex->cmd_count)
 		{
 			free(pipex->cmd_paths[i]);
 			i++;
@@ -87,6 +87,10 @@ void	free_struct(t_pipex *pipex)
 
 int	ft_exit(t_pipex *pipex, int error)
 {
+	close(pipex->out_fd);
+	close(0);
+	close(1);
+	close(2);
 	if (pipex)
 	{
 		free_struct(pipex);

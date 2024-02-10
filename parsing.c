@@ -6,65 +6,42 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 14:10:06 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/09 19:47:33 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/10 17:21:09 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
-#include <unistd.h>
 
-char	*get_tmp_file_name(int argc, char **argv)
-{
-	int		i;
-	char	*tmp_file_name;
-	char	*res;
-	char	*i_char;
-
-	i = 0;
-	tmp_file_name = "tmp";
-	i_char = ft_itoa(i);
-	res = ft_strjoin(tmp_file_name, i_char);
-	free(i_char);
-	// while res file exists --> increase
-	while (!ft_strncmp(res, argv[argc - 1], ft_strlen(res)))
-	{
-		free(res);
-		i_char = ft_itoa(i);
-		res = ft_strjoin(ft_strdup(tmp_file_name), i_char);
-		free(i_char);
-		i++;
-	}
-	return (res);
-}
-
-int	check_args(t_pipex *pipex, int argc, char **argv)
+void	handle_here_doc(t_pipex *pipex, int argc, char **argv)
 {
 	char	*line;
 	char	*eof;
 
+	pipex->here_doc_file = get_tmp_file_name(argc, argv);
+	pipex->in_fd = open(pipex->here_doc_file, O_CREAT | O_RDWR, 0644);
+	ft_printf(2, "here_doc> ");
+	line = get_next_line(0);
+	write(pipex->in_fd, line, ft_strlen(line));
+	eof = ft_strjoin(argv[2], "\n");
+	while (ft_strncmp(line, eof, (ft_strlen(argv[2]) + 1)))
+	{
+		ft_printf(2, "here_doc> ");
+		free(line);
+		line = get_next_line(0);
+		if (ft_strncmp(line, eof, (ft_strlen(argv[2]) + 1)))
+			write(pipex->in_fd, line, ft_strlen(line));
+	}
+	free(eof);
+	free(line);
+	pipex->out_fd = open(argv[argc - 1], O_CREAT | O_RDWR | O_APPEND, 0644);
+}
+
+int	check_args(t_pipex *pipex, int argc, char **argv)
+{
 	if (argc < (5 + pipex->here_doc))
 		ft_exit(pipex, 0);
 	if (pipex->here_doc)
-	{
-		pipex->here_doc_file = get_tmp_file_name(argc, argv);
-		ft_printf(2, "here_doc_file: %s\n", pipex->here_doc_file);
-		pipex->in_fd = open(pipex->here_doc_file, O_CREAT | O_RDWR, 0644);
-		ft_printf(2, "here_doc> ");
-		line = get_next_line(0);
-		write(pipex->in_fd, line, ft_strlen(line));
-		eof = ft_strjoin(argv[2], "\n");
-		while (ft_strncmp(line, eof, (ft_strlen(argv[2]) + 1)))
-		{
-			ft_printf(2, "here_doc> ");
-			free(line);
-			line = get_next_line(0);
-			if (ft_strncmp(line, eof, (ft_strlen(argv[2]) + 1)))
-				write(pipex->in_fd, line, ft_strlen(line));
-		}
-		free(eof);
-		free(line);
-		pipex->out_fd = open(argv[argc - 1], O_CREAT | O_RDWR | O_APPEND, 0644);
-	}
+		handle_here_doc(pipex, argc, argv);
 	else
 	{
 		pipex->in_fd = open(argv[1], O_RDONLY);
@@ -106,11 +83,11 @@ int	parse_cmds(t_pipex *pipex, int argc, char **argv)
 	int	i;
 	int	j;
 
-	i = 2;
+	i = 1;
 	if (!ft_strncmp(argv[1], "here_doc", 8))
 		i++;
 	j = 0;
-	while (i < argc - 1)
+	while (++i < argc - 1)
 	{
 		pipex->cmd_paths[j] = ft_substr(argv[i], 0, first_word_len(argv[i]));
 		exists = 0;
@@ -123,11 +100,9 @@ int	parse_cmds(t_pipex *pipex, int argc, char **argv)
 			free(pipex->cmd_paths[j]);
 			pipex->cmd_paths[j] = 0;
 		}
-		i++;
 		j++;
-		//pipex->cmd_count++;
+		pipex->cmd_count++;
 	}
-	//pipex->cmd_count--;
 	return (0);
 }
 

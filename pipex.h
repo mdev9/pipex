@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/04 16:12:57 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/09 16:43:02 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/10 18:00:24 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,8 @@
 # define PIPEX_H
 
 # include "libft/libft.h"
-# include <stdio.h>
 # include <sys/wait.h>
-//# include <unistd.h>
-//# include <stdlib.h>
-//# include <fcntl.h>
+# include <stdio.h>
 
 typedef struct s_pipex
 {
@@ -42,5 +39,6 @@ void	parse_args(t_pipex *pipex, int argc, char **argv);
 int		parse_cmds(t_pipex *pipex, int argc, char **argv);
 void	pipe_child(t_pipex *pipex, int cmd_i, char **envp);
 void	pipe_parent(t_pipex *pipex, int cmd_i, int pid);
+char	*get_tmp_file_name(int argc, char **argv);
 
 #endif
