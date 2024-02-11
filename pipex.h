@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/04 16:12:57 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/10 18:00:24 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/11 20:43:56 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,12 +33,12 @@ typedef struct s_pipex
 
 int		ft_exit(t_pipex *pipex, int error);
 int		first_word_len(char *str);
-int		init_pipex(t_pipex **pipex, int argc, char **argv, char **envp);
-int		check_args(t_pipex *pipex, int argc, char **argv);
+void	init_pipex(t_pipex **pipex, int argc, char **argv, char **envp);
+void	check_args(t_pipex *pipex, int argc, char **argv);
 void	parse_args(t_pipex *pipex, int argc, char **argv);
-int		parse_cmds(t_pipex *pipex, int argc, char **argv);
+void	parse_cmds(t_pipex *pipex, int argc, char **argv);
 void	pipe_child(t_pipex *pipex, int cmd_i, char **envp);
 void	pipe_parent(t_pipex *pipex, int cmd_i, int pid);
-char	*get_tmp_file_name(int argc, char **argv);
+char	*get_tmp_file_name(t_pipex *pipex, int argc, char **argv);
 
 #endif

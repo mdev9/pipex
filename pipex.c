@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/28 20:26:11 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/10 18:40:22 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/11 20:41:33 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,14 +20,14 @@ int	exec(t_pipex *pipex, int cmd_i, char **envp)
 	{
 		if (pipe(pipex->fds[cmd_i]) == -1)
 		{
-			perror("pipe error\n");
+			perror("pipe");
 			ft_exit(pipex, 1);
 		}
 	}
 	pid = fork();
 	if (pid == -1)
 	{
-		perror("fork error\n");
+		perror("fork");
 		ft_exit(pipex, 1);
 	}
 	if (pid == 0)
@@ -42,12 +42,9 @@ int	main(int argc, char **argv, char **envp)
 	t_pipex	*pipex;
 	int		i;
 
-	if (init_pipex(&pipex, argc, argv, envp))
-		return (ft_exit(pipex, 1));
-	if (check_args(pipex, argc, argv))
-		return (ft_exit(pipex, 1));
-	if (parse_cmds(pipex, argc, argv))
-		return (ft_exit(pipex, 1));
+	init_pipex(&pipex, argc, argv, envp);
+	check_args(pipex, argc, argv);
+	parse_cmds(pipex, argc, argv);
 	parse_args(pipex, argc, argv);
 	i = 0;
 	while (i < pipex->cmd_count)

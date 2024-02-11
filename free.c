@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 14:00:12 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/10 18:27:00 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/11 20:31:45 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,11 @@ void	free_struct(t_pipex *pipex)
 
 int	ft_exit(t_pipex *pipex, int error)
 {
+	if (error == 1)
+		ft_printf(2, "pipex: error\n");
+	else if (error == 2)
+		perror("open");
+	close(pipex->in_fd);
 	close(pipex->out_fd);
 	close(0);
 	close(1);
