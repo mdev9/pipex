@@ -6,12 +6,12 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/04 16:12:57 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/11 21:59:18 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/11 22:05:48 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PIPEX_H
-# define PIPEX_H
+#ifndef PIPEX_BONUS_H
+# define PIPEX_BONUS_H
 
 # include "../libft/libft.h"
 # include <sys/wait.h>

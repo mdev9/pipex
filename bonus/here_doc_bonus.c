@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 21:33:07 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/11 21:48:47 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/11 22:05:59 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,4 +78,3 @@ void	handle_here_doc(t_pipex *pipex, int argc, char **argv)
 	if (pipex->out_fd == -1)
 		ft_exit(pipex, 2);
 }
-

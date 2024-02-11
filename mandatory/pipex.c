@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/28 20:26:11 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/11 20:41:33 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/11 22:21:29 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ int	main(int argc, char **argv, char **envp)
 	t_pipex	*pipex;
 	int		i;
 
-	init_pipex(&pipex, argc, argv, envp);
+	init_pipex(&pipex, argc, envp);
 	check_args(pipex, argc, argv);
 	parse_cmds(pipex, argc, argv);
 	parse_args(pipex, argc, argv);

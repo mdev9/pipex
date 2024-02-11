@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 15:26:46 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/11 21:49:07 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/11 22:27:54 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void	redirect_input(t_pipex *pipex, int cmd_i)
 	{
 		if (pipex->here_doc)
 		{
-			close(pipex->in_fd); // new
+			close(pipex->in_fd);
 			pipex->in_fd = open(pipex->here_doc_file, O_RDWR, 0644);
 			if (pipex->in_fd == -1)
 				ft_exit(pipex, 2);
@@ -32,7 +32,7 @@ void	redirect_input(t_pipex *pipex, int cmd_i)
 	{
 		if (dup2(pipex->fds[cmd_i - 1][0], 0) < 0)
 			ft_exit(pipex, 1);
-		close(pipex->in_fd); // new
+		close(pipex->in_fd);
 	}
 }
 
@@ -64,7 +64,6 @@ void	pipe_child(t_pipex *pipex, int cmd_i, char **envp)
 		close(pipex->in_fd);
 	close(pipex->fds[cmd_i][0]);
 	close(pipex->fds[cmd_i][1]);
-	//close(pipex->in_fd);
 	close(pipex->out_fd);
 	if (pipex->cmd_paths[cmd_i])
 		execve(pipex->cmd_paths[cmd_i], pipex->cmd_args[cmd_i], envp);

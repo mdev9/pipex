@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 14:00:12 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/11 20:31:45 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/11 22:13:56 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,11 +77,6 @@ void	free_struct(t_pipex *pipex)
 			i++;
 		}
 		free(pipex->fds);
-	}
-	if (pipex->here_doc_file)
-	{
-		unlink(pipex->here_doc_file);
-		free(pipex->here_doc_file);
 	}
 }
 

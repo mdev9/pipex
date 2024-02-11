@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 15:26:46 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/11 21:34:05 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/11 22:11:25 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ void	get_path_from_envp(t_pipex *pipex, int argc, char **envp)
 	pipex->cmd_paths = cmds;
 }
 
-void	init_pipex(t_pipex **pipex, int argc, char **argv, char **envp)
+void	init_pipex(t_pipex **pipex, int argc, char **envp)
 {
 	int	i;
 	int	*pids;
@@ -54,9 +54,7 @@ void	init_pipex(t_pipex **pipex, int argc, char **argv, char **envp)
 		ft_exit(*pipex, 1);
 	(*pipex)->in_fd = 0;
 	(*pipex)->out_fd = 1;
-	if (argc > 1 && !ft_strncmp(argv[1], "here_doc", 8))
-		(*pipex)->here_doc = 1;
-	i = argc - (3 + (*pipex)->here_doc);
+	i = argc - 3;
 	pids = calloc(i + 1, sizeof(int));
 	fds = calloc(i, sizeof(int *));
 	(*pipex)->pids = pids;
