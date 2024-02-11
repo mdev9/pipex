@@ -6,12 +6,13 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 14:10:06 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/11 20:53:54 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/11 21:15:08 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
+/*
 void	handle_here_doc(t_pipex *pipex, int argc, char **argv)
 {
 	char	*line;
@@ -21,7 +22,7 @@ void	handle_here_doc(t_pipex *pipex, int argc, char **argv)
 	pipex->in_fd = open(pipex->here_doc_file, O_CREAT | O_RDWR, 0644);
 	if (pipex->in_fd == -1)
 		ft_exit(pipex, 2);
-	ft_printf(2, "here_doc> ");
+	ft_printf(2, "> ");
 	line = get_next_line(0);
 	write(pipex->in_fd, line, ft_strlen(line));
 	eof = ft_strjoin(argv[2], "\n");
@@ -39,25 +40,29 @@ void	handle_here_doc(t_pipex *pipex, int argc, char **argv)
 	if (pipex->out_fd == -1)
 		ft_exit(pipex, 2);
 }
+*/
 
-/*
 void	handle_here_doc(t_pipex *pipex, int argc, char **argv)
 {
 	char	*line;
 	char	*eof;
 
-	pipex->here_doc_file = get_tmp_file_name(argc, argv);
+	pipex->here_doc_file = get_tmp_file_name(pipex, argc, argv);
 	pipex->in_fd = open(pipex->here_doc_file, O_CREAT | O_RDWR, 0644);
+	if (pipex->in_fd == -1)
+		ft_exit(pipex, 2);
 	eof = ft_strjoin(argv[2], "\n");
+	if (!eof)
+		ft_exit(pipex, 1);
 	line = NULL;
 	while (!line || ft_strncmp(line, eof, ft_strlen(argv[2]) + 1))
 	{
-		ft_printf(1, "here_doc> ");
+		ft_printf(1, "> ");
 		free(line);
 		line = get_next_line(0);
 		if (!line)
 		{
-			ft_printf(2, "\npipex: here_doc: warning: here-document delimited by end-of-file\n");
+			ft_printf(2, "\npipex: warning: here-document delimited by end-of-file\n");
 			break ;
 		}
 		if (ft_strncmp(line, eof, (ft_strlen(argv[2]) + 1)))
@@ -66,8 +71,9 @@ void	handle_here_doc(t_pipex *pipex, int argc, char **argv)
 	free(eof);
 	free(line);
 	pipex->out_fd = open(argv[argc - 1], O_CREAT | O_RDWR | O_APPEND, 0644);
-	close(pipex->in_fd);
-}*/
+	if (pipex->out_fd == -1)
+		ft_exit(pipex, 2);
+}
 
 void	check_args(t_pipex *pipex, int argc, char **argv)
 {
