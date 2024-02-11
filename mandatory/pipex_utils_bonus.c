@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 15:26:46 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/11 20:44:31 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/11 21:34:05 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,34 +41,6 @@ void	get_path_from_envp(t_pipex *pipex, int argc, char **envp)
 	if (!cmds)
 		ft_exit(pipex, 1);
 	pipex->cmd_paths = cmds;
-}
-
-char	*get_tmp_file_name(t_pipex *pipex, int argc, char **argv)
-{
-	int		i;
-	char	*tmp_file_name;
-	char	*res;
-	char	*i_char;
-
-	i = 0;
-	tmp_file_name = ".tmp";
-	i_char = ft_itoa(i);
-	res = ft_strjoin(tmp_file_name, i_char);
-	if (!res)
-		ft_exit(pipex, 1);
-	free(i_char);
-	while (!ft_strncmp(res, argv[argc - 1], ft_strlen(res))
-		|| !access(res, F_OK))
-	{
-		free(res);
-		i_char = ft_itoa(i);
-		res = ft_strjoin(tmp_file_name, i_char);
-		if (!res)
-			ft_exit(pipex, 1);
-		free(i_char);
-		i++;
-	}
-	return (res);
 }
 
 void	init_pipex(t_pipex **pipex, int argc, char **argv, char **envp)

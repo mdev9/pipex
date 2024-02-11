@@ -1,19 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipex.h                                            :+:      :+:    :+:   */
+/*   pipex_bonus.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/04 16:12:57 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/11 20:43:56 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/11 21:59:18 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PIPEX_H
 # define PIPEX_H
 
-# include "libft/libft.h"
+# include "../libft/libft.h"
 # include <sys/wait.h>
 # include <stdio.h>
 
@@ -40,5 +40,6 @@ void	parse_cmds(t_pipex *pipex, int argc, char **argv);
 void	pipe_child(t_pipex *pipex, int cmd_i, char **envp);
 void	pipe_parent(t_pipex *pipex, int cmd_i, int pid);
 char	*get_tmp_file_name(t_pipex *pipex, int argc, char **argv);
+void	handle_here_doc(t_pipex *pipex, int argc, char **argv);
 
 #endif
