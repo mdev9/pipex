@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 14:10:06 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/11 22:15:00 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/11 23:04:24 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,9 +65,9 @@ void	parse_cmds(t_pipex *pipex, int argc, char **argv)
 	int	i;
 	int	j;
 
-	i = 2;
+	i = 1;
 	j = 0;
-	while (i < argc - 1)
+	while (++i < argc - 1)
 	{
 		pipex->cmd_paths[j] = ft_substr(argv[i], 0, first_word_len(argv[i]));
 		if (!pipex->cmd_paths[j])
@@ -79,10 +79,10 @@ void	parse_cmds(t_pipex *pipex, int argc, char **argv)
 			find_cmd_path(pipex, j, &exists);
 		if (!exists)
 		{
+			ft_printf(2, "%s: command not found\n", pipex->cmd_paths[j]);
 			free(pipex->cmd_paths[j]);
 			pipex->cmd_paths[j] = 0;
 		}
-		i++;
 		j++;
 		pipex->cmd_count++;
 	}

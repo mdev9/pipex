@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 14:10:06 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/11 21:48:56 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/11 23:13:54 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,31 +59,40 @@ void	find_cmd_path(t_pipex *pipex, int cmd, int *exists)
 	}
 }
 
-void	parse_cmds(t_pipex *pipex, int argc, char **argv)
+void	check_if_command_exists(t_pipex *pipex, int i)
 {
 	int	exists;
+
+	exists = 0;
+	if (access(pipex->cmd_paths[i], X_OK) != -1)
+		exists = 1;
+	else
+		find_cmd_path(pipex, i, &exists);
+	if (!exists)
+	{
+		ft_printf(2, "%s: command not found\n", pipex->cmd_paths[i]);
+		free(pipex->cmd_paths[i]);
+		pipex->cmd_paths[i] = 0;
+	}
+}
+
+void	parse_cmds(t_pipex *pipex, int argc, char **argv)
+{
 	int	i;
 	int	j;
 
-	i = 1;
+	i = 2;
 	if (!ft_strncmp(argv[1], "here_doc", 8))
 		i++;
-	j = -1;
-	while (++i < argc - 1)
+	j = 0;
+	while (i < argc - 1)
 	{
-		pipex->cmd_paths[++j] = ft_substr(argv[i], 0, first_word_len(argv[i]));
+		pipex->cmd_paths[j] = ft_substr(argv[i], 0, first_word_len(argv[i]));
 		if (!pipex->cmd_paths[j])
 			ft_exit(pipex, 1);
-		exists = 0;
-		if (access(pipex->cmd_paths[j], X_OK) != -1)
-			exists = 1;
-		else
-			find_cmd_path(pipex, j, &exists);
-		if (!exists)
-		{
-			free(pipex->cmd_paths[j]);
-			pipex->cmd_paths[j] = 0;
-		}
+		check_if_command_exists(pipex, j);
+		i++;
+		j++;
 		pipex->cmd_count++;
 	}
 }
