@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 14:10:06 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/11 23:04:24 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/12 14:17:11 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,9 @@
 
 void	check_args(t_pipex *pipex, int argc, char **argv)
 {
-	if (argc < 5)
+	if (argc > 5)
 	{
-		ft_printf(2, "pipex: error: not enough arguments\n");
-		ft_exit(pipex, 0);
-	}
-	else if (argc > 5)
-	{
-		ft_printf(2, "pipex: error: too much arguments\n");
+		ft_printf(2, "pipex: error: too many arguments\n");
 		ft_exit(pipex, 0);
 	}
 	pipex->in_fd = open(argv[1], O_RDONLY);

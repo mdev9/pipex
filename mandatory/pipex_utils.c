@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 15:26:46 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/11 22:11:25 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/12 14:13:04 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ void	get_path_from_envp(t_pipex *pipex, int argc, char **envp)
 	i = 0;
 	while (ft_strncmp(*(envp + i), "PATH=", 5))
 		i++;
+	ft_printf(2, "%d\n", ft_strncmp(*(envp + i), "PATH=", 5));
 	path_from_envp = *(envp + i);
 	paths = ft_split(path_from_envp, ':');
 	if (!paths)
@@ -54,6 +55,11 @@ void	init_pipex(t_pipex **pipex, int argc, char **envp)
 		ft_exit(*pipex, 1);
 	(*pipex)->in_fd = 0;
 	(*pipex)->out_fd = 1;
+	if (argc < 5)
+	{
+		ft_printf(2, "pipex: error: not enough arguments\n");
+		ft_exit(*pipex, 0);
+	}
 	i = argc - 3;
 	pids = ft_calloc(i + 1, sizeof(int));
 	fds = ft_calloc(i, sizeof(int *));

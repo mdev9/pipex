@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 14:10:06 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/11 23:13:54 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/12 14:15:50 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,6 @@
 
 void	check_args(t_pipex *pipex, int argc, char **argv)
 {
-	if (argc < (5 + pipex->here_doc))
-	{
-		ft_printf(2, "pipex: error: not enough arguments\n");
-		ft_exit(pipex, 0);
-	}
 	if (pipex->here_doc)
 		handle_here_doc(pipex, argc, argv);
 	else
