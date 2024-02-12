@@ -49,7 +49,9 @@ int	main(int argc, char **argv, char **envp)
 	i = 0;
 	while (i < pipex->cmd_count)
 	{
-		pipex->fds[i] = calloc(2, sizeof(int));
+		pipex->fds[i] = ft_calloc(2, sizeof(int));
+		if (!pipex->fds[i])
+			ft_exit(pipex, 1);
 		exec(pipex, i, envp);
 		i++;
 	}

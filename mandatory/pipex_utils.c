@@ -55,8 +55,8 @@ void	init_pipex(t_pipex **pipex, int argc, char **envp)
 	(*pipex)->in_fd = 0;
 	(*pipex)->out_fd = 1;
 	i = argc - 3;
-	pids = calloc(i + 1, sizeof(int));
-	fds = calloc(i, sizeof(int *));
+	pids = ft_calloc(i + 1, sizeof(int));
+	fds = ft_calloc(i, sizeof(int *));
 	(*pipex)->pids = pids;
 	(*pipex)->fds = fds;
 	if (!pids || !fds)

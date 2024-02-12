@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 14:00:12 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/11 22:08:17 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/12 13:19:12 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,8 +91,10 @@ int	ft_exit(t_pipex *pipex, int error)
 		ft_printf(2, "pipex: error\n");
 	else if (error == 2)
 		perror("open");
-	close(pipex->in_fd);
-	close(pipex->out_fd);
+	if (pipex->in_fd != -1)
+		close(pipex->in_fd);
+	if (pipex->out_fd != -1)
+		close(pipex->out_fd);
 	close(0);
 	close(1);
 	close(2);
