@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 21:33:07 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/12 20:08:50 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/13 12:58:11 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,9 +42,11 @@ char	*get_tmp_file_name(t_pipex *pipex, int argc, char **argv)
 
 int	contains_newline(char *str)
 {
-	int i;
+	int	i;
 
 	i = 0;
+	if (!str)
+		return (0);
 	while (str[i])
 	{
 		if (str[i] == '\n')
@@ -57,66 +59,29 @@ int	contains_newline(char *str)
 void	get_here_doc_input(t_pipex *pipex, char **argv, char *eof)
 {
 	char	*line;
-	char	*buffer;
+	int		new_line;
 
 	line = NULL;
-	buffer = NULL;
+	new_line = 1;
+	ft_printf(1, "> ");
 	while (1)
 	{
 		free(line);
-		ft_printf(1, "\nbuffer: %s\n", buffer);
-		if (!buffer)
-			ft_printf(1, "> ");
 		line = get_next_line(0);
-		if (!buffer)
-			buffer = ft_strdup("");
-		buffer = ft_strjoin(buffer, line);
-		if (!line && !buffer)
+		if (!line && new_line)
 		{
 			ft_printf(2, "\npipex: here-document delimited by end-of-file\n");
 			break ;
 		}
-		if (contains_newline(buffer))
-		{
-			write(pipex->in_fd, buffer, ft_strlen(buffer));
-			free(buffer);
-		}
-		if (line && !ft_strncmp(line, eof, ft_strlen(argv[2]) + 1))
-		{
-			ft_printf(1, "yes\n");
+		if (line && new_line && !ft_strncmp(line, eof, ft_strlen(argv[2]) + 1))
 			break ;
-		}
+		new_line = contains_newline(line);
+		if (new_line)
+			ft_printf(1, "> ");
+		write(pipex->in_fd, line, ft_strlen(line));
 	}
 	free(eof);
 	free(line);
-	/*
-	while (!line || ft_strncmp(line, eof, ft_strlen(argv[2]) + 1))
-	{
-		ft_printf(1, "> ");
-		free(line);
-		line = get_next_line(0);
-		if (line)
-		{
-			while (!contains_newline(line))
-			{
-				buffer = get_next_line(0);
-				buffer = ft_strjoin(line, buffer);
-				free(line);
-				line = buffer;
-				free(buffer);
-			}
-			write(pipex->in_fd, line, ft_strlen(line));
-		}
-		else
-		{
-			ft_printf(2, "\npipex: here-document delimited by end-of-file\n");
-			break ;
-		}
-		if (ft_strncmp(line, eof, (ft_strlen(argv[2]) + 1)))
-			write(pipex->in_fd, line, ft_strlen(line));
-	}
-	free(eof);
-	free(line);*/
 }
 
 void	handle_here_doc(t_pipex *pipex, int argc, char **argv)

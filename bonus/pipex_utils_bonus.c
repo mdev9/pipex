@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 15:26:46 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/12 17:58:48 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/13 12:47:22 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ int	first_word_len(char *str)
 void	split_paths(t_pipex *pipex, char *path_from_envp)
 {
 	char	**paths;
-	
+
 	paths = ft_split(path_from_envp, ':');
 	if (!paths)
 		ft_exit(pipex, 1);
@@ -34,15 +34,15 @@ void	split_paths(t_pipex *pipex, char *path_from_envp)
 
 void	get_path_from_envp(t_pipex *pipex, int argc, char **envp)
 {
-	int	path_in_envp;
+	int		path_in_envp;
 	char	**cmds;
-	int	i;
+	int		i;
 
 	i = 0;
 	path_in_envp = 0;
 	while (envp[i])
 	{
-		if(!ft_strncmp(*(envp + i), "PATH=", 5))
+		if (!ft_strncmp(*(envp + i), "PATH=", 5))
 		{
 			path_in_envp = 1;
 			break ;
