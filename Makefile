@@ -1,7 +1,5 @@
 NAME = pipex
 
-NAME_BONUS = pipex
-
 CC = cc
 
 SRCS =	mandatory/pipex.c\
@@ -27,13 +25,11 @@ CFLAGS = -Wall -Wextra -Werror
 
 all: $(NAME) libft
 
-bonus: $(NAME_BONUS)
+bonus: $(LIBFT) $(OBJS_BONUS) 
+	$(CC) -g $(CFLAGS) $(OBJS_BONUS) $(LIBFT) -o $(NAME)
 
 $(NAME): $(LIBFT) $(OBJS) 
 	$(CC) -g $(CFLAGS) $(OBJS) $(LIBFT) -o $(NAME)
-
-$(NAME_BONUS): $(LIBFT) $(OBJS_BONUS) 
-	$(CC) -g $(CFLAGS) $(OBJS_BONUS) $(LIBFT) -o $(NAME_BONUS)
 
 $(LIBFT):
 	make -C ./libft

@@ -6,7 +6,7 @@
 /*   By: marde-vr <marde-vr@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 14:10:06 by marde-vr          #+#    #+#             */
-/*   Updated: 2024/02/12 14:15:50 by marde-vr         ###   ########.fr       */
+/*   Updated: 2024/02/13 14:55:37 by marde-vr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,9 @@ void	check_args(t_pipex *pipex, int argc, char **argv)
 		pipex->in_fd = open(argv[1], O_RDONLY);
 		pipex->out_fd = open(argv[argc - 1], O_CREAT | O_RDWR | O_TRUNC, 0644);
 	}
-	if (pipex->in_fd == -1 || pipex->out_fd == -1)
+	if (pipex->in_fd)
+		perror("open");
+	if (pipex->out_fd == -1)
 		ft_exit(pipex, 2);
 }
 
