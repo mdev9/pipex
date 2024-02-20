@@ -39,6 +39,7 @@ $(LIBFT):
 
 clean:
 	rm -f $(OBJS) $(OBJS_BONUS)
+	make clean -C ./libft
 
 fclean: clean
 	rm -f $(NAME) $(NAME_BONUS)
